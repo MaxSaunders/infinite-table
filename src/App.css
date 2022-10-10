@@ -24,3 +24,13 @@ tr:nth-child(odd) > td, th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
+
+.scroll-button {
+  z-index: 10;
+  position: sticky;
+  top: 0;
+  font-size: larger;
+  background-color: rgb(71, 169, 194);
+  border-radius: 10px;
+  cursor: pointer;
+}

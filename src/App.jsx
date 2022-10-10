@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import useBookSearch from './useBookSearch'
 import './App.css'
+
+const scrollToTop = () => {
+  window.scrollTo(0, 0)
+}
 
 const Row = ({ rowData }) => {
   if (!rowData) {
@@ -40,21 +44,23 @@ function isElementInViewport(el) {
   );
 }
 
-function onVisibilityChange(el, callback) {
-  if (el == null || el == undefined) return
-  var old_visible;
+function onVisibilityChange(el, callback, callback2) {
+  if (el == null || el == undefined) return () => callback2()
+  var old_visible
   return function () {
-    var visible = isElementInViewport(el);
+    var visible = isElementInViewport(el)
     if (visible && visible != old_visible) {
       old_visible = visible;
       if (typeof callback == 'function') {
-        callback();
+        callback()
       }
     }
+    callback2()
   }
 }
 
 export default function App() {
+  const [atTop, setAtTop] = useState(true)
   const [query, setQuery] = useState('')
   const [pageNumber, setPageNumber] = useState(1)
 
@@ -65,11 +71,19 @@ export default function App() {
     error
   } = useBookSearch(query, pageNumber)
 
-  const elem = document.getElementById('observer-element')
+  const elem = useMemo(() =>{
+    return document.getElementById('observer-element')
+  }, [books, loading])
 
   useEffect(() => {
     const handler = onVisibilityChange(elem, function () {
       setPageNumber(prevPageNumber => prevPageNumber + 1)
+    }, function () {
+      if(window.pageYOffset < 500) {
+        setAtTop(true)
+      } else {
+        setAtTop(false)
+      }
     })
 
     addEventListener('DOMContentLoaded', handler, false);
@@ -92,6 +106,7 @@ export default function App() {
 
   return (
     <>
+      {!atTop && <button className='scroll-button' onClick={scrollToTop}>Scroll to Top</button>}
       <div style={{ marginBottom: '20px' }}>
         <label style={{ fontSize: 'larger' }}>Search: </label>
         <input placeholder='search query' type="text" value={query} onChange={handleSearch}></input>
@@ -101,7 +116,7 @@ export default function App() {
           {defaultTable(books)?.map((book, index) => {
             if (books?.length == (index + 20)) {
               return (
-                <tr id={`observer-element`} key={`${book}-${index}`}>
+                <tr id={`observer-element`} key={`${book}-${index}`} style={{ backgroundColor: 'red' }}>
                 {/* <tr id={`observer-element`} style={{ backgroundColor: 'red' }} key={`${book}-${index}`}> */}
                   {/* <td><div key={book}>{book}</div></td> */}
                   <Row rowData={book} />
