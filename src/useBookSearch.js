@@ -12,6 +12,7 @@ export default function useBookSearch(query, pageNumber) {
         setBooks(prevBooks => {
             return [...new Set([...prevBooks, ...results])]
         })
+        setLoading(false)
     }, [results])
 
     useEffect(() => {
@@ -23,7 +24,6 @@ export default function useBookSearch(query, pageNumber) {
         setError('')
         getNext()
         setHasMore(true)
-        setLoading(false)
     }, [query, pageNumber])
 
     return {

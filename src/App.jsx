@@ -131,7 +131,7 @@ export default function App() {
               )
             }
           })}
-          {loading && <tr><td>Loading...</td></tr>}
+          {loading && <tr><td colSpan={3}>Loading...</td></tr>}
           {error && <tr><td>Error</td></tr>}
         </tbody>
       </table>
